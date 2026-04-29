@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Школа Экспертов · Тренажёр оператора</title>
+<style>
+:root {
+  --cream: #f5ebe0;
+  --cream-lt: #fbf6ee;
+  --white: #ffffff;
+  --brown-dk: #3e342c;
+  --brown: #6a5d50;
+  --taupe: #b8a894;
+  --pink: #e0b0c0;
+  --pink-lt: #f7e3e9;
+  --pink-deep: #c98ba1;
+  --lavender: #c0a0e0;
+  --lav-lt: #ece0f5;
+  --cool: #d8d4e0;
+  --muted: #9e9080;
+  --line: #d8c8b6;
+  --green: #a8c8a8;
+  --green-lt: #e0eed8;
+  --green-deep: #5a8a5a;
+  --red-soft: #d89090;
+  --red-deep: #a85050;
+  --gold: #d4af37;
+  --gold-lt: #f5e6a8;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--cream); color: var(--brown-dk);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  line-height: 1.65; min-height: 100vh;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+
+/* HEADER */
+header.top {
+  background: var(--brown-dk); color: var(--cream);
+  border-radius: 14px; padding: 24px 32px;
+  margin-bottom: 24px; position: relative; overflow: hidden;
+}
+header.top::before {
+  content:''; position:absolute; top:-30px; right:-30px;
+  width:180px; height:180px; border-radius:50%;
+  background: var(--pink); opacity: 0.18;
+}
+header.top::after {
+  content:''; position:absolute; bottom:-30px; left:-30px;
+  width:140px; height:140px; border-radius:50%;
+  background: var(--lavender); opacity: 0.18;
+}
+.top-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; position: relative; z-index: 1; }
+.top-title { font-family: Georgia, serif; font-size: 28px; font-weight: bold; }
+.top-tag { font-size: 10px; letter-spacing: 5px; color: var(--pink); font-weight: bold; margin-bottom: 4px; }
+.level-badge {
+  background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 24px;
+  font-size: 13px; display: flex; align-items: center; gap: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.level-badge .num { font-family: Georgia, serif; font-size: 20px; font-weight: bold; color: var(--pink); }
+.level-badge .lvl { color: var(--cream); }
+.level-badge .stats { color: var(--cool); font-size: 11px; opacity: 0.8; }
+
+/* NAV */
+nav.tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+nav.tabs button {
+  flex: 1; min-width: 140px;
+  background: var(--white); border: 2px solid transparent;
+  padding: 14px 18px; border-radius: 10px; cursor: pointer;
+  font-family: Georgia, serif; font-size: 15px;
+  color: var(--brown-dk); transition: all .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+nav.tabs button:hover { background: var(--cream-lt); }
+nav.tabs button.active {
+  background: var(--brown-dk); color: var(--cream);
+  border-color: var(--pink);
+}
+
+/* SCREENS */
+.screen { display: none; animation: fadeIn .25s; }
+.screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+
+/* CARDS / BLOCKS */
+.card {
+  background: var(--white); border-radius: 12px;
+  padding: 24px 28px; margin-bottom: 18px;
+  border-left: 4px solid var(--pink);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card.lavender { border-left-color: var(--lavender); }
+.card.taupe { border-left-color: var(--taupe); }
+.card h3 {
+  font-family: Georgia, serif; font-size: 18px;
+  margin: 0 0 10px; color: var(--brown-dk);
+}
+.card p { margin: 8px 0; font-size: 15px; color: var(--brown-dk); }
+.card ul, .card ol { padding-left: 22px; margin: 8px 0; }
+.card li { margin-bottom: 6px; font-size: 14px; }
+.card b { color: var(--brown-dk); background: rgba(224,176,192,.3); padding: 1px 5px; border-radius: 3px; }
+
+/* CATEGORY HUB */
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.cat-tile {
+  background: var(--white); border-radius: 12px; padding: 22px;
+  border-left: 4px solid var(--pink); cursor: pointer;
+  transition: all .15s; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+.cat-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,.08); }
+.cat-tile.locked { opacity: 0.5; cursor: not-allowed; }
+.cat-tile.locked:hover { transform: none; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.cat-name { font-family: Georgia, serif; font-size: 17px; font-weight: bold; margin-bottom: 6px; }
+.cat-desc { font-size: 12px; color: var(--muted); margin-bottom: 12px; min-height: 32px; }
+.cat-progress {
+  height: 6px; background: var(--cream); border-radius: 3px; overflow: hidden;
+  margin-top: 10px;
+}
+.cat-progress-fill { height: 100%; background: var(--pink); transition: width .3s; }
+.cat-progress-text { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.cat-coming { font-size: 11px; color: var(--lavender); font-style: italic; }
+
+/* CATEGORY DETAIL */
+.back-btn {
+  background: transparent; border: none; color: var(--brown);
+  cursor: pointer; font-size: 13px; padding: 8px 0;
+  margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px;
+}
+.back-btn:hover { color: var(--brown-dk); }
+
+.detail-hero {
+  background: var(--lav-lt); border-radius: 14px; padding: 28px 32px;
+  margin-bottom: 18px; border-left: 4px solid var(--lavender);
+}
+.detail-hero h2 { font-family: Georgia, serif; font-size: 30px; margin: 0 0 8px; color: var(--brown-dk); }
+.detail-hero .sub { color: var(--brown); font-style: italic; font-size: 14px; }
+
+.symptom-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.symptom-pill {
+  background: var(--pink-lt); color: var(--brown-dk);
+  padding: 6px 12px; border-radius: 14px; font-size: 13px;
+  border: 1px solid var(--pink);
+}
+
+.phase {
+  background: var(--cream-lt); border-radius: 10px; padding: 16px 20px;
+  margin: 10px 0; display: grid; grid-template-columns: auto 1fr; gap: 14px;
+}
+.phase-num {
+  background: var(--pink); color: var(--white);
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, serif; font-size: 18px; font-weight: bold;
+}
+.phase-content h4 { margin: 0 0 4px; font-family: Georgia, serif; font-size: 15px; }
+.phase-content p { margin: 4px 0; font-size: 14px; color: var(--brown); }
+.phase-content .duration { color: var(--lavender); font-style: italic; font-size: 12px; font-weight: bold; }
+
+.qa-item {
+  background: var(--cream-lt); border-radius: 8px; padding: 14px 18px;
+  margin: 8px 0; cursor: pointer; transition: background .15s;
+}
+.qa-item:hover { background: var(--cream); }
+.qa-q { font-weight: bold; color: var(--brown-dk); font-size: 14px; }
+.qa-q::before { content: '❓ '; }
+.qa-a {
+  margin-top: 8px; font-size: 13px; color: var(--brown);
+  padding-top: 8px; border-top: 1px solid var(--line);
+  display: none; font-style: italic;
+}
+.qa-item.open .qa-a { display: block; }
+
+.expert-phrase {
+  background: var(--brown-dk); color: var(--cream-lt);
+  border-radius: 8px; padding: 14px 18px; margin: 8px 0;
+  font-style: italic; font-size: 14px; position: relative;
+}
+.expert-phrase::before { content: '💬 '; }
+
+.red-zone {
+  background: var(--pink-lt); border-left: 4px solid var(--red-soft);
+  border-radius: 8px; padding: 14px 20px; margin: 14px 0;
+}
+.red-zone h4 { margin: 0 0 6px; color: var(--red-deep); font-size: 14px; font-family: Georgia, serif; }
+.red-zone ul { margin: 4px 0; padding-left: 22px; }
+.red-zone li { font-size: 13px; color: var(--brown); }
+
+.story {
+  background: var(--green-lt); border-left: 4px solid var(--green);
+  border-radius: 8px; padding: 14px 20px; margin: 10px 0;
+  font-size: 14px; color: var(--brown-dk); font-style: italic;
+}
+.story b { color: var(--green-deep); font-style: normal; background: transparent; }
+
+.link-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.link-pill {
+  background: var(--lav-lt); color: var(--brown-dk);
+  padding: 6px 12px; border-radius: 14px; font-size: 13px;
+  border: 1px solid var(--lavender);
+}
+
+/* TRAINING / GAMES */
+.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.game-tile {
+  background: var(--white); border-radius: 14px; padding: 24px;
+  border-top: 4px solid var(--pink); cursor: pointer;
+  transition: all .15s; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+.game-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+.game-tile.lavender { border-top-color: var(--lavender); }
+.game-tile.gold { border-top-color: var(--gold); }
+.game-icon { font-size: 36px; margin-bottom: 8px; }
+.game-name { font-family: Georgia, serif; font-size: 19px; font-weight: bold; margin-bottom: 6px; }
+.game-desc { font-size: 13px; color: var(--brown); margin-bottom: 12px; }
+.game-meta { font-size: 11px; color: var(--muted); }
+
+/* QUESTION SCREEN */
+.question-card {
+  background: var(--white); border-radius: 14px; padding: 32px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.question-progress { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.question-streak {
+  display: inline-block; background: var(--gold-lt); color: var(--brown-dk);
+  padding: 3px 10px; border-radius: 12px; font-size: 11px; margin-left: 8px;
+  font-weight: bold;
+}
+.question-text {
+  font-family: Georgia, serif; font-size: 22px; line-height: 1.4;
+  margin-bottom: 24px; color: var(--brown-dk);
+}
+.question-text .quote {
+  background: var(--lav-lt); padding: 14px 18px; border-radius: 8px;
+  border-left: 4px solid var(--lavender); font-style: italic;
+  display: block; margin-top: 12px; font-size: 18px;
+}
+.options { display: grid; gap: 10px; }
+.option-btn {
+  background: var(--cream-lt); border: 2px solid transparent;
+  padding: 14px 20px; border-radius: 10px; text-align: left;
+  cursor: pointer; font-family: inherit; font-size: 15px;
+  color: var(--brown-dk); transition: all .15s;
+}
+.option-btn:hover { background: var(--cream); border-color: var(--lavender); }
+.option-btn.correct { background: var(--green-lt); border-color: var(--green); }
+.option-btn.wrong { background: var(--pink-lt); border-color: var(--red-soft); }
+.option-btn.disabled { cursor: default; }
+.option-btn.disabled:hover { background: var(--cream-lt); border-color: transparent; }
+.option-btn.disabled.correct:hover { background: var(--green-lt); border-color: var(--green); }
+.option-btn.disabled.wrong:hover { background: var(--pink-lt); border-color: var(--red-soft); }
+
+.feedback {
+  margin-top: 18px; padding: 14px 20px; border-radius: 10px;
+  font-size: 14px; display: none;
+}
+.feedback.show { display: block; animation: fadeIn .2s; }
+.feedback.right { background: var(--green-lt); color: var(--green-deep); border-left: 4px solid var(--green); }
+.feedback.wrong { background: var(--pink-lt); color: var(--red-deep); border-left: 4px solid var(--red-soft); }
+.feedback b { display: block; margin-bottom: 4px; font-size: 15px; }
+
+.next-btn {
+  background: var(--brown-dk); color: var(--cream);
+  border: none; padding: 12px 28px; border-radius: 10px;
+  cursor: pointer; font-family: Georgia, serif; font-size: 15px;
+  margin-top: 16px; transition: all .15s;
+}
+.next-btn:hover { background: var(--brown); }
+.next-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* SIMULATOR */
+.sim-stage {
+  background: var(--white); border-radius: 14px; padding: 28px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.dialog-bubble {
+  margin: 12px 0; padding: 14px 18px; border-radius: 14px;
+  max-width: 80%; font-size: 14px;
+}
+.dialog-bubble.client {
+  background: var(--lav-lt); border: 1px solid var(--lavender);
+  margin-right: auto; border-bottom-left-radius: 4px;
+}
+.dialog-bubble.client::before { content: '👤 Клиент: '; font-weight: bold; color: #5a3a7a; }
+.dialog-bubble.operator {
+  background: var(--green-lt); border: 1px solid var(--green);
+  margin-left: auto; border-bottom-right-radius: 4px; text-align: right;
+}
+.dialog-bubble.operator::before { content: '🧑‍💼 Ты: '; font-weight: bold; color: var(--green-deep); }
+
+/* PROGRESS SCREEN */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat {
+  background: var(--white); border-radius: 12px; padding: 20px;
+  text-align: center; border-top: 4px solid var(--pink);
+}
+.stat-num { font-family: Georgia, serif; font-size: 32px; font-weight: bold; color: var(--brown-dk); }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+.level-card {
+  background: linear-gradient(135deg, var(--brown-dk) 0%, #5a4a3e 100%);
+  color: var(--cream); border-radius: 14px; padding: 28px;
+  margin-bottom: 24px; position: relative; overflow: hidden;
+}
+.level-card::before {
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:200px; height:200px; border-radius:50%;
+  background: var(--pink); opacity: 0.15;
+}
+.level-card h3 { font-family: Georgia, serif; font-size: 14px; letter-spacing: 4px; color: var(--pink); margin: 0; }
+.level-card .name { font-family: Georgia, serif; font-size: 32px; font-weight: bold; margin: 8px 0; }
+.level-card .progress { margin-top: 14px; }
+.level-bar { height: 8px; background: rgba(255,255,255,0.15); border-radius: 4px; overflow: hidden; }
+.level-bar-fill { height: 100%; background: var(--pink); transition: width .5s; }
+.level-card .next { font-size: 12px; color: var(--cool); margin-top: 6px; }
+
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.badge {
+  background: var(--white); border-radius: 12px; padding: 16px 12px;
+  text-align: center; border: 2px solid var(--cream);
+  transition: all .15s;
+}
+.badge.earned { border-color: var(--gold); background: linear-gradient(135deg, #fff 0%, var(--gold-lt) 100%); }
+.badge.locked { opacity: 0.4; }
+.badge-icon { font-size: 32px; margin-bottom: 6px; }
+.badge-name { font-size: 12px; font-weight: bold; color: var(--brown-dk); }
+.badge-desc { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+/* SECTION HEADERS */
+h2.section { font-family: Georgia, serif; font-size: 22px; margin: 24px 0 12px; color: var(--brown-dk); }
+h2.section .num { color: var(--pink); margin-right: 8px; }
+
+.reset-btn {
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  padding: 8px 16px; border-radius: 8px; cursor: pointer;
+  font-size: 12px; margin-top: 16px;
+}
+.reset-btn:hover { background: var(--pink-lt); color: var(--red-deep); border-color: var(--red-soft); }
+
+@media (max-width: 600px) {
+  .top-title { font-size: 22px; }
+  .question-text { font-size: 18px; }
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="top-row">
+    <div>
+      <div class="top-tag">N A T I V E C A L L &middot; Ш К О Л А</div>
+      <div class="top-title">Школа Экспертов</div>
+    </div>
+    <div class="level-badge">
+      <span class="num" id="hdrLevel">1</span>
+      <div>
+        <div class="lvl" id="hdrLevelName">Новичок</div>
+        <div class="stats" id="hdrStats">0 правильных &middot; стрик 0</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="learn">📚 Изучить</button>
+  <button class="tab-btn" data-tab="train">🎯 Тренировка</button>
+  <button class="tab-btn" data-tab="progress">📊 Прогресс</button>
+</nav>
+
+<!-- ============ LEARN ============ -->
+<section class="screen active" id="screen-learn">
+  <div id="learn-hub">
+    <h2 class="section"><span class="num">📚</span>Категории</h2>
+    <p style="color:var(--muted); font-style:italic; margin-bottom:18px;">кликай на категорию — внутри развёрнутый материал, чтобы звучать как эксперт. Категории помечены &laquo;скоро&raquo; пока в разработке.</p>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+  <div id="learn-detail" style="display:none;"></div>
+</section>
+
+<!-- ============ TRAIN ============ -->
+<section class="screen" id="screen-train">
+  <div id="train-hub">
+    <h2 class="section"><span class="num">🎯</span>Тренировка</h2>
+    <p style="color:var(--muted); font-style:italic; margin-bottom:18px;">выбери тип игры — каждый правильный ответ повышает уровень и стрик.</p>
+    <div class="games-grid">
+      <div class="game-tile" onclick="startGame('quiz')">
+        <div class="game-icon">🎯</div>
+        <div class="game-name">Угадай категорию</div>
+        <div class="game-desc">Слышишь фразу клиента — выбери, о какой болячке речь. Учит распознавать триггеры.</div>
+        <div class="game-meta">10 вопросов &middot; легко-средне</div>
+      </div>
+      <div class="game-tile lavender" onclick="startGame('cross')">
+        <div class="game-icon">🔗</div>
+        <div class="game-name">Найди кросс</div>
+        <div class="game-desc">Основная заявка известна. По косвенным жалобам выбери лучший кросс-продукт.</div>
+        <div class="game-meta">10 вопросов &middot; средне</div>
+      </div>
+      <div class="game-tile" onclick="startGame('explain')" style="border-top-color: var(--green);">
+        <div class="game-icon">🤝</div>
+        <div class="game-name">Объясни клиенту</div>
+        <div class="game-desc">Клиент возражает — выбери лучший ответ из трёх. Отрабатываются цена, &laquo;я подумаю&raquo;, &laquo;уже пробовал&raquo;.</div>
+        <div class="game-meta">10 возражений &middot; средне</div>
+      </div>
+      <div class="game-tile gold" onclick="startGame('sim')">
+        <div class="game-icon">📞</div>
+        <div class="game-name">Симулятор звонка</div>
+        <div class="game-desc">Текстовый диалог из 5 шагов. Каждый ход — выбор из 3 ответов. В конце оценка.</div>
+        <div class="game-meta">5 шагов &middot; сложно</div>
+      </div>
+    </div>
+  </div>
+  <div id="train-game" style="display:none;"></div>
+</section>
+
+<!-- ============ PROGRESS ============ -->
+<section class="screen" id="screen-progress">
+  <div class="level-card">
+    <h3>УРОВЕНЬ</h3>
+    <div class="name" id="progLevelName">Новичок</div>
+    <div class="progress">
+      <div class="level-bar"><div class="level-bar-fill" id="progLevelFill" style="width:0%"></div></div>
+      <div class="next" id="progNext">До следующего уровня: 30 правильных ответов</div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">правильных всего</div></div>
+    <div class="stat"><div class="stat-num" id="statStreak"
+<script>
+const CATEGORIES = [{"id": "prostate", "name": "Простата · Потенция", "desc": "Простатит, аденома, мужское здоровье 40+", "icon": "♂️", "available": true}, {"id": "joints", "name": "Суставы · Спина", "desc": "Артрит, артроз, остеохондроз, боли в спине", "icon": "🦴", "available": true}, {"id": "pressure", "name": "Давление · Сердце", "desc": "Гипертония, аритмия, сосуды", "icon": "❤️", "available": false}, {"id": "weight", "name": "Похудение", "desc": "Лишний вес, метаболизм", "icon": "⚖️", "available": false}, {"id": "parasites", "name": "Паразиты", "desc": "Глисты, чистка организма", "icon": "🦠", "available": false}, {"id": "gi", "name": "ЖКТ", "desc": "Желудок, кишечник, пищеварение", "icon": "🍃", "available": false}, {"id": "papilloma", "name": "Папилломы · Кожа", "desc": "ВПЧ, кожные образования", "icon": "🩹", "available": false}, {"id": "diabetes", "name": "Диабет", "desc": "Сахар, поджелудочная", "icon": "🩸", "available": false}, {"id": "female", "name": "Женское здоровье", "desc": "Гинекология, гормоны, климакс", "icon": "🌸", "available": false}, {"id": "stress", "name": "Стресс · Сон", "desc": "Тревога, бессонница, нервы", "icon": "🧠", "available": false}, {"id": "enlarge", "name": "Увеличение", "desc": "Гели для мужчин", "icon": "✨", "available": false}, {"id": "prostatitis", "name": "Простатит (расширенный)", "desc": "Острая фаза, обострения", "icon": "🔥", "available": false}];
+const CATEGORIES_DATA = {"prostate": {"id": "prostate", "name": "Простата · Потенция", "shortDesc": "Воспаление и увеличение предстательной железы у мужчин 40+", "what": "<b>Простатит и аденома простаты</b> — самые частые проблемы мужчин после 40. Простата — небольшая железа размером с грецкий орех у основания мочевого пузыря. Она охватывает мочеиспускательный канал и вырабатывает секрет, входящий в состав спермы.<br><br>Когда железа воспаляется или увеличивается — она <b>сдавливает мочевой канал</b> (отсюда трудности с мочеиспусканием) и <b>нарушает кровообращение в малом тазу</b> (отсюда снижение потенции). Эти две вещи всегда идут вместе.<br><br>Простатит бывает <b>острый</b> (с температурой и болями, требует врача) и <b>хронический</b> (тлеет годами, обостряется). У наших клиентов почти всегда хроническая форма.", "causes": ["Возрастные изменения — после 40 простата начинает увеличиваться", "Малоподвижный образ жизни → застой крови в малом тазу", "Переохлаждение (особенно сидение на холодном)", "Половая нестабильность — длительное воздержание ИЛИ гиперактивность", "Хронический стресс и постоянная усталость", "Снижение тестостерона (естественное возрастное)", "Скрытые инфекции мочеполовой системы"], "symptoms": ["Частые походы в туалет ночью (2-5 раз)", "Тонкая, слабая, прерывистая струя", "Чувство неполного опорожнения", "Боль или жжение при мочеиспускании", "Тяжесть, давление в области промежности", "Слабая или нестабильная эрекция", "Преждевременная эякуляция", "Снижение либидо, безразличие к интиму", "Хроническая усталость и раздражительность"], "consequences": "<b>Если игнорировать:</b><br>• прогрессирующее увеличение простаты → острая задержка мочи (требует катетера в больнице)<br>• стойкая импотенция<br>• бесплодие<br>• аденома → риск перерождения в злокачественное<br>• постоянные тазовые боли<br>• депрессия из-за интимных проблем и стыда", "howWorks": "Натуральные комплексы этой категории <b>не маскируют симптом</b>, как аптечная химия. Они работают на восстановление функции:<br>• снимают воспаление в самой железе<br>• улучшают кровоток в малом тазу<br>• поддерживают синтез тестостерона<br>• защищают клетки простаты от перерождения<br>• укрепляют мышцы тазового дна", "phases": [{"num": 1, "name": "Подготовка", "dur": "10–20 дней", "desc": "снимается воспаление, нормализуется отток мочи. Клиент замечает первое: ночные походы в туалет уменьшаются с 4-5 до 1-2."}, {"num": 2, "name": "Активная фаза", "dur": "40–60 дней", "desc": "восстанавливается кровообращение в малом тазу. Возвращается стабильная эрекция, повышается либидо. Активируется выработка тестостерона."}, {"num": 3, "name": "Закрепление", "dur": "70–90 дней", "desc": "нормализуется размер железы, стабилизируется гормональный фон. Эффект устойчивый — рецидива не будет, если сохранять образ жизни."}], "vsChemistry": "<b>Аптечные средства</b> (Tamsulosin, Finasterid, альфа-блокаторы) расслабляют мышцы канала, чтобы было легче мочиться, но <b>не лечат причину</b>. Побочки: снижение либидо (!), импотенция, головокружение.<br><br><b>Антибиотики</b> нужны при острой инфекции, но при хроническом простатите бесполезны — они не убирают воспаление от застоя.<br><br><b>Натуральные комплексы</b> работают месяцами, но устраняют причину — без побочек.", "faq": [{"q": "Это вылечит мой простатит?", "a": "Мы не врачи и не диагностируем. Натуральные комплексы поддерживают восстановление организма. Решение лечиться — за вами и врачом."}, {"q": "А не побочки будут?", "a": "В составе только растительные экстракты. Побочки бывают только при индивидуальной непереносимости компонентов — это редко."}, {"q": "Можно совмещать с моими лекарствами от давления?", "a": "Это не лекарство, это пищевая добавка. С большинством совместима. Но в любом случае посоветуйтесь с врачом."}, {"q": "Я уже пробовал что-то похожее, не помогло", "a": "Часто причина в коротком курсе. Простата восстанавливается медленно — нужно минимум 3-4 месяца, чтобы клетки регенерировались. У вас, скорее всего, был курс короче."}, {"q": "Зачем сразу 4 пакета? Я хочу сначала один попробовать.", "a": "Один пакет — это пробник, он только запускает процесс. Реальный эффект достигается полным курсом. Один пакет = деньги на ветер."}, {"q": "Я не могу себе позволить такую сумму.", "a": "Если посчитать стоимость на день — это меньше чашки кофе. А вернуть здоровье потом стоит в разы дороже. Плюс мы можем разбить курс на пакеты."}, {"q": "Я уже пожилой, может это не для меня?", "a": "Наоборот — чем старше, тем актуальнее поддержка. У нас самые активные клиенты — мужчины 60+, потому что результат меняет качество жизни."}], "doNot": ["«Мы вылечим вас» — мы не лечим, поддерживаем", "«100% гарантия результата» — каждый организм разный", "«Замените все ваши лекарства этим» — это БАД, не лекарство", "«У вас точно простатит» — мы не ставим диагнозы", "Грубые шутки на интимные темы — клиент стесняется, не давить"], "links": [{"name": "Потенция / Увеличение", "why": "естественное продолжение лечения простаты, гель + капсулы вместе"}, {"name": "Стресс / Сон", "why": "у мужчин с простатитом часто проблемы со сном и тревожность"}, {"name": "Иммунитет", "why": "для общего тонуса и борьбы с воспалением"}, {"name": "Сердце / Давление", "why": "у клиентов 50+ часто идёт в комплексе с давлением"}], "stories": ["<b>Ганс, 58, Берлин:</b> жаловался — встаёт 4 раза за ночь, эрекция почти исчезла. После 3-месячного курса походы в туалет максимум 1 раз за ночь, эрекция вернулась, отношения с женой наладились.", "<b>Михаэль, 67, Гамбург:</b> хронический простатит 12 лет, перепробовал всё. Первые 3 месяца курса — снижение боли и частоты мочеиспускания, к концу 4-го — стабильно «как в 40 лет». Заказал ещё на профилактику."], "expertPhrases": ["То, что вы описываете — типичная картина при хроническом простатите.", "В основе проблемы — воспаление и нарушение кровотока в малом тазу.", "Наш курс работает в три этапа: снимаем воспаление → восстанавливаем кровоток → закрепляем эффект.", "Многие думают что простатит — приговор, но при правильном подходе функция полностью восстанавливается.", "Это не таблетка от симптомов — это поддержка функции железы на клеточном уровне."]}, "joints": {"id": "joints", "name": "Суставы · Спина", "shortDesc": "Артрит, артроз, остеохондроз, боли в спине у людей 45+", "what": "Под этой категорией скрывается несколько разных состояний, но клиент чаще всего говорит о них одинаково: «болят суставы», «болит спина».<br><br><b>Артроз</b> — самое частое. Изнашивается хрящ, который покрывает кости в суставе и работает как «подушка». Когда хряща мало, кости трутся друг о друга → боль, хруст, ограничение движений. После 50 лет артроз есть у каждого второго.<br><br><b>Артрит</b> — воспаление сустава. Бывает после инфекции, при ревматических заболеваниях, аутоиммунный. Отличие от артроза: при артрите сустав <b>горячий, красный, сильно болит даже в покое</b>.<br><br><b>Остеохондроз</b> — изменения в позвоночнике: межпозвоночные диски «усыхают», появляются грыжи, защемляются нервы. Отсюда боли в шее, пояснице, отдающие в ногу или руку.<br><br><b>Подагра</b> — отложение солей мочевой кислоты в суставах (чаще большой палец ноги). Резкая, очень сильная боль приступами.<br><br>Все эти состояния <b>имеют общий корень</b> — нехватка коллагена, воспаление, плохое питание тканей. Поэтому подход к восстановлению похожий.", "causes": ["Возрастной износ хряща — у каждого второго после 50", "Лишний вес — 1 кг лишнего = 4 кг нагрузки на колени", "Старые травмы, переломы, вывихи (даже забытые)", "Сидячая работа → атрофия мышц вокруг сустава", "Профессиональные нагрузки — грузчики, строители, спортсмены, парикмахеры (стоя весь день)", "Дефицит коллагена и кальция в питании", "Гормональные сдвиги — особенно у женщин в климаксе (резко падает синтез коллагена)", "Переохлаждение, сырость", "Скрытые хронические инфекции", "Аутоиммунные заболевания (ревматоидный артрит)"], "symptoms": ["Боль при движении (артроз) или в покое тоже (артрит)", "Утренняя скованность — «не могу разогнуться» 15-30 минут после сна", "Хруст и щелчки при движении", "Отёк, припухлость сустава", "Покраснение, тепло на ощупь (артрит)", "Ограничение амплитуды — не могу присесть/наклониться", "Боль «на погоду», на сырость", "Боль в спине, отдающая в ногу или руку", "Онемение пальцев рук или ног", "Усталость в ногах к вечеру", "Деформация суставов (узлы на пальцах рук)"], "consequences": "<b>Если игнорировать:</b><br>• сустав полностью теряет подвижность — анкилоз<br>• деформация (искривлённые пальцы, кривые ноги, горб)<br>• операция эндопротезирования — дорого, страшно, не у всех приживается<br>• хроническая инвалидность, инвалидное кресло<br>• постоянные сильные боли, отравляющие жизнь<br>• обезболивающие годами → язва желудка, разрушение печени, почек<br>• депрессия от ограничений и боли", "howWorks": "Натуральные комплексы для суставов работают <b>на восстановление хряща</b>, а не глушат боль. Принцип:<br>• <b>коллаген и хондроитин</b> — строительный материал для хряща<br>• <b>глюкозамин</b> — стимулирует выработку синовиальной жидкости (естественной смазки сустава)<br>• <b>растительные противовоспалительные</b> — куркума, босвеллия — снимают воспаление без вреда желудку<br>• <b>улучшают кровоток</b> к суставам — питание тканей лучше<br>• <b>укрепляют связки</b> — сустав становится стабильнее", "phases": [{"num": 1, "name": "Снятие воспаления", "dur": "10–20 дней", "desc": "уходит острая боль, утренняя скованность сокращается. Клиент замечает: легче встать с постели, меньше хочется обезболивающих."}, {"num": 2, "name": "Восстановление хряща", "dur": "40–60 дней", "desc": "активно строится новая хрящевая ткань. Возвращается амплитуда движений. Хруст уменьшается. Можно вернуться к простой физической активности."}, {"num": 3, "name": "Закрепление", "dur": "70–90 дней", "desc": "стабилизируется состояние сустава, укрепляются связки. Клиенты часто говорят: «хожу как в молодости». Эффект устойчивый при правильном образе жизни."}], "vsChemistry": "<b>НПВС</b> (Diclofenac, Ibuprofen, Voltaren) — самое частое назначение. Снимают боль и воспаление, но: разрушают слизистую желудка (язва), бьют по почкам, повышают давление. И <b>не лечат причину</b> — только заглушают.<br><br><b>Кортикостероиды</b> (уколы в сустав) — быстрый, мощный эффект, но при частом применении <b>разрушают сам хрящ</b>. Это парадокс: лечит боль, ускоряя разрушение.<br><br><b>Аптечные хондропротекторы</b> в принципе работают на том же принципе что наши, но дозы маленькие, а курсы короткие — поэтому эффекта часто не хватает.<br><br><b>Натуральные комплексы</b> — медленно, минимум 3-4 месяца, но реально дают строительный материал хрящу. Без побочек.", "faq": [{"q": "У меня уже артроз 2 степени на снимке, мне поможет?", "a": "На 2 степени восстановление возможно — это рабочая стадия. На 3-4 степени тоже работает, но эффект слабее, может потребоваться более длительный курс. Важно начать сейчас."}, {"q": "Это обезболит сразу?", "a": "Не сразу — это не обезболивающее. Эффект накопительный, через 2-4 недели заметно снижение боли. Но в отличие от таблеток — он держится."}, {"q": "Я принимаю много лекарств от давления, можно?", "a": "Это пищевая добавка, не лекарство. С большинством препаратов совместима. Но обязательно посоветуйтесь с врачом."}, {"q": "Хруст в коленях у меня с молодости, это плохо?", "a": "Просто хруст без боли — не обязательно проблема. Но если присоединяются боли или скованность — это уже начальный артроз, который лучше остановить сейчас."}, {"q": "Я очень давно болею, всё перепробовал, ничего не помогает", "a": "Часто причина в коротких курсах. Хрящ — это медленная ткань, на восстановление нужно минимум 3-4 месяца непрерывно. У вас, скорее всего, курсы были короче."}, {"q": "Зачем сразу 4 пачки?", "a": "Один пакет — это 3-4 недели. За это время хрящ только начинает реагировать. Полный курс — это 4 пачки минимум, иначе деньги впустую."}, {"q": "Я уже немолодая, может это не для меня?", "a": "Наоборот — после 60 это самая нужная поддержка. У нас множество клиентов 70+, которые после курса вернулись к активной жизни."}, {"q": "А мне поможет от спины или это только для коленей?", "a": "Принцип одинаковый — суставы и позвоночник восстанавливаются по тому же пути. Спина даже отзывается быстрее, потому что там нагрузка распределена."}], "doNot": ["«Мы избавим вас от артроза навсегда» — нельзя обещать полное исчезновение", "«100% гарантия» — каждый случай индивидуален", "«Бросайте свои таблетки» — это БАД, нельзя так советовать", "«У вас точно артроз 3 степени» — мы не ставим диагнозы", "Шутки про возраст — клиент с болью особенно раним", "«Это вместо операции» — операция и БАД — разные вещи"], "links": [{"name": "Похудение", "why": "лишний вес — главная нагрузка на колени и спину, кросс почти всегда уместен"}, {"name": "Сердце / Давление", "why": "улучшение кровотока к суставам = быстрее восстановление, плюс пожилые часто гипертоники"}, {"name": "Иммунитет", "why": "для общего тонуса, особенно при ревматоидных формах"}, {"name": "Стресс / Сон", "why": "хронический стресс усиливает воспаление, плохой сон → плохое восстановление"}, {"name": "Диабет", "why": "у диабетиков суставы изнашиваются быстрее из-за плохого кровотока"}], "stories": ["<b>Хельга, 64, Мюнхен:</b> артроз обоих коленей, не могла подняться на 3 этаж без боли. После 4-месячного курса вернулась к утренним прогулкам, прошлым летом ходила в горы с мужем — впервые за 10 лет.", "<b>Клаус, 58, Дрезден:</b> работал грузчиком, поясница убита. Уколы и НПВС не давали покоя — боль возвращалась через неделю. Через 3 месяца курса смог снова поднимать внуков на руки. Заказал второй курс на профилактику.", "<b>Анна-Мария, 71, Кёльн:</b> ревматоидный артрит, узлы на пальцах. Цель была — суметь застегнуть пуговицы. После 5-месячного курса не только пуговицы — снова вяжет внукам носки. Боль ушла на 70%."], "expertPhrases": ["То, что вы описываете — типичная картина при артрозе или артрите.", "В основе боли — нехватка коллагена в хряще и воспаление в суставе.", "Наш курс восстанавливает сам хрящ, а не глушит боль таблетками.", "Многие думают что артроз — это навсегда, но процесс можно остановить и развернуть.", "Это не обезболивающее — это питание и строительный материал для сустава.", "Ключевая ошибка — короткий курс. Хрящ медленно восстанавливается, минимум 3 месяца."]}};
+const QUIZ_QUESTIONS = [{"cat": "prostate", "q": "«Я просыпаюсь ночью 4 раза, чтобы сходить в туалет»", "options": ["Простата", "Диабет", "Сердце", "Похудение"], "correct": 0, "hint": "Никтурия — классика простатита (увеличенная железа давит на пузырь)."}, {"cat": "prostate", "q": "«У меня тонкая струя, и кажется будто пузырь не до конца опорожняется»", "options": ["ЖКТ", "Простата", "Стресс", "Паразиты"], "correct": 1, "hint": "Слабая струя и неполное опорожнение — два главных триггера простатита."}, {"cat": "prostate", "q": "«После 50 эрекция стала нестабильной, особенно по утрам её часто нет»", "options": ["Стресс", "Сердце", "Простата / Потенция", "Иммунитет"], "correct": 2, "hint": "Утренние эрекции — индикатор тестостерона. Их пропадание — прямой триггер."}, {"cat": "prostate", "q": "«Чувствую дискомфорт и тяжесть в области промежности, особенно после долгого сидения»", "options": ["Простата", "Геморрой", "Похудение", "Стресс"], "correct": 0, "hint": "Тяжесть в промежности + сидячий образ — типичный застойный простатит."}, {"cat": "prostate", "q": "«Жена жалуется что я не такой как раньше в постели»", "options": ["Стресс", "Потенция", "Сон", "Диабет"], "correct": 1, "hint": "Косвенный триггер потенции — из-за стеснения мужчины редко говорят прямо."}, {"cat": "prostate", "q": "«Боль в промежности при долгой езде на машине, и потом несколько дней не проходит»", "options": ["Сердце", "Простата", "ЖКТ", "Суставы"], "correct": 1, "hint": "Боль от вибрации + локализация в промежности — застойный простатит."}, {"cat": "joints", "q": "«Утром не могу разогнуться, в коленях хрустит и болит при ходьбе»", "options": ["Сердце", "Суставы", "Простата", "Стресс"], "correct": 1, "hint": "Утренняя скованность + хруст в коленях = артроз/артрит."}, {"cat": "joints", "q": "«Поясница ноет уже месяц, отдаёт в правую ногу, иногда немеет стопа»", "options": ["ЖКТ", "Суставы / Спина", "Сердце", "Похудение"], "correct": 1, "hint": "Боль в пояснице + иррадиация в ногу + онемение = остеохондроз/грыжа."}, {"cat": "joints", "q": "«На погоду суставы выкручивает, особенно колени и пальцы»", "options": ["Иммунитет", "Стресс", "Суставы", "Сердце"], "correct": 2, "hint": "«На погоду» — классическая жалоба при артрозе и ревматических болях."}, {"cat": "joints", "q": "«После работы стоя весь день — поясница, колени, как старушка хожу»", "options": ["Стресс", "Похудение", "Суставы", "Иммунитет"], "correct": 2, "hint": "Возрастная нагрузка + работа стоя = быстрое изнашивание суставов."}, {"cat": "joints", "q": "«Не могу присесть на корточки и выпрямиться без боли в коленях»", "options": ["Похудение", "Суставы", "Сердце", "ЖКТ"], "correct": 1, "hint": "Ограничение амплитуды + боль при движении — классический артроз коленей."}, {"cat": "joints", "q": "«Палец на ноге опух, покраснел, ужасно болит, не наступить»", "options": ["Сердце", "Подагра / Суставы", "Иммунитет", "Похудение"], "correct": 1, "hint": "Острая боль + покраснение большого пальца ноги = классическая подагра."}, {"cat": "joints", "q": "«Шея ноет, голова кружится, иногда руки немеют»", "options": ["Сердце", "Стресс", "Шейный остеохондроз / Спина", "Простата"], "correct": 2, "hint": "Шея + головокружение + онемение рук = шейный остеохондроз с защемлением."}, {"cat": "joints", "q": "«Утром пальцы не сгибаются, как будто деревянные, потом разрабатываются»", "options": ["Суставы / Артрит", "Стресс", "Сердце", "ЖКТ"], "correct": 0, "hint": "Утренняя скованность пальцев — типичный признак артрита."}, {"cat": "diabetes", "q": "«Постоянно хожу в туалет, и пью очень много воды последние месяцы»", "options": ["Простата", "Диабет", "Похудение", "Паразиты"], "correct": 1, "hint": "Жажда + частое мочеиспускание = классический Diabetes Typ 2."}, {"cat": "pressure", "q": "«У меня ноги к вечеру отекают, и часто кружится голова»", "options": ["Сердце / Давление", "Суставы", "Паразиты", "ЖКТ"], "correct": 0, "hint": "Отёки + головокружение — гипертония и сердечная недостаточность."}, {"cat": "stress", "q": "«Постоянная усталость, плохо сплю, всё бесит»", "options": ["Стресс / Тревога", "Простата", "ЖКТ", "Сердце"], "correct": 0, "hint": "Хроническая усталость + раздражительность + бессонница — стрессовый кластер."}, {"cat": "weight", "q": "«Уже несколько лет не получается сбросить вес, диеты не работают»", "options": ["Похудение", "ЖКТ", "Стресс", "Диабет"], "correct": 0, "hint": "Замедленный метаболизм + неэффективные диеты = категория похудения."}, {"cat": "parasites", "q": "«Постоянно зудит кожа, высыпания, иногда тошнит, а ел вроде нормально»", "options": ["Иммунитет", "ЖКТ", "Паразиты", "Стресс"], "correct": 2, "hint": "Зуд + высыпания + проблемы с ЖКТ — классический паразитарный фон."}, {"cat": "gi", "q": "«После еды тяжесть, изжога, вздутие — будто кирпич в желудке»", "options": ["ЖКТ", "Сердце", "Стресс", "Паразиты"], "correct": 0, "hint": "Тяжесть после еды + изжога + вздутие — прямой триггер ЖКТ."}];
+const CROSS_QUESTIONS = [{"cat": "prostate", "main": "Клиент заказал средство для простаты. В разговоре упомянул:", "quote": "«У меня ещё иногда давление скачет, врач советовал контролировать»", "options": ["Иммунитет", "Сердце / Давление", "Похудение", "Стресс"], "correct": 1, "hint": "Прямое упоминание давления = бьёт прямо в категорию Сердце."}, {"cat": "prostate", "main": "Клиент заказал средство для простаты. В разговоре упомянул:", "quote": "«Жена жалуется что в постели стал неактивный»", "options": ["Похудение", "Иммунитет", "Потенция / Гель", "Сон"], "correct": 2, "hint": "Простата + потенция = идеальная пара для кросса (гель в дополнение к капсулам)."}, {"cat": "prostate", "main": "Клиент заказал средство для простаты. Упомянул:", "quote": "«Плохо сплю, нервничаю по работе, всё на нервах»", "options": ["Стресс / Сон", "Иммунитет", "Похудение", "ЖКТ"], "correct": 0, "hint": "Сон + нервы = Стресс. У мужчин с простатитом частая связка."}, {"cat": "prostate", "main": "Клиент заказал средство для простаты. Упомянул:", "quote": "«А ещё спина у меня болит, после долгого сидения совсем плохо»", "options": ["Суставы / Спина", "Иммунитет", "Похудение", "Стресс"], "correct": 0, "hint": "Боль в спине + сидячий образ = суставы/спина. Логичный кросс к простате."}, {"cat": "joints", "main": "Клиент заказал средство для суставов. Упомянул:", "quote": "«Часто простужаюсь, иммунитет совсем слабый»", "options": ["Иммунитет", "Похудение", "Стресс", "Простата"], "correct": 0, "hint": "Прямое упоминание иммунитета — бери Immucaps как кросс."}, {"cat": "joints", "main": "Клиент заказал средство для суставов. Упомянул:", "quote": "«Я набрал лишних 15 кг за последний год, наверное из-за этого хуже»", "options": ["Иммунитет", "Похудение", "Стресс", "Паразиты"], "correct": 1, "hint": "Лишний вес напрямую усиливает нагрузку на суставы — кросс на похудение в тему."}, {"cat": "joints", "main": "Клиент заказал средство для суставов. Упомянул:", "quote": "«Сахар тоже немного повышен, эндокринолог наблюдает»", "options": ["Стресс", "Диабет", "Иммунитет", "Похудение"], "correct": 1, "hint": "Сахар + контроль эндокринолога = диабет. Кросс на диабет."}, {"cat": "joints", "main": "Клиент заказал средство для спины. Упомянул:", "quote": "«Спина болит, давление скачет, на нервах всё»", "options": ["Сердце / Давление", "Иммунитет", "Похудение", "ЖКТ"], "correct": 0, "hint": "Прямое упоминание давления = Сердце. Кросс к спине логичный."}, {"cat": "joints", "main": "Клиент заказал средство для коленей. Упомянула:", "quote": "«Спать стала плохо, нервы постоянно на пределе»", "options": ["Стресс / Сон", "Иммунитет", "Похудение", "Паразиты"], "correct": 0, "hint": "Сон + нервы = Стресс. Хорошо ложится в кросс."}, {"cat": "pressure", "main": "Клиент заказал средство для давления. Упомянул:", "quote": "«Сахар тоже немного повышен, ну и вес есть лишний»", "options": ["Стресс", "Диабет", "Суставы", "Иммунитет"], "correct": 1, "hint": "Сахар + лишний вес → ярко выраженная категория Диабет."}, {"cat": "pressure", "main": "Клиент заказал средство для давления. Упомянул:", "quote": "«К вечеру отекают ноги, и поясница начинает ныть»", "options": ["Суставы / Спина", "Иммунитет", "Похудение", "Паразиты"], "correct": 0, "hint": "Поясница + нагрузка на ноги = суставы/спина. Логичный кросс."}, {"cat": "weight", "main": "Клиент заказал средство для похудения. Упомянул:", "quote": "«После 50 что-то не то, вообще энергии нет»", "options": ["Стресс / Антистресс", "Простата", "Иммунитет", "ЖКТ"], "correct": 0, "hint": "«Энергии нет» в этом возрасте чаще про стресс/гормоны, кросс — антистресс."}, {"cat": "weight", "main": "Клиентка заказала средство для похудения. Упомянула:", "quote": "«Колени стали болеть, врач говорит — из-за веса»", "options": ["Суставы", "Иммунитет", "Стресс", "ЖКТ"], "correct": 0, "hint": "Боль в коленях + вес = суставы. Прямая связь, кросс обязателен."}, {"cat": "parasites", "main": "Клиент заказал средство от паразитов. Упомянул:", "quote": "«Кожа стала плохая, высыпания и зуд»", "options": ["Иммунитет", "Суставы", "Стресс", "Сердце"], "correct": 0, "hint": "Кожные проблемы при паразитах — реакция на токсины. Иммунитет в помощь."}, {"cat": "diabetes", "main": "Клиент заказал средство для диабета. Упомянул:", "quote": "«Зрение стало хуже, ноги к вечеру немеют»", "options": ["Похудение", "Сердце / Сосуды", "Простата", "Стресс"], "correct": 1, "hint": "Это уже диабетические осложнения сосудов — кросс на сердце/сосуды обязателен."}, {"cat": "diabetes", "main": "Клиент заказал средство для диабета. Упомянул:", "quote": "«Колени болят, ходить тяжело, сахар не помогает»", "options": ["Суставы", "Иммунитет", "Стресс", "Похудение"], "correct": 0, "hint": "У диабетиков суставы изнашиваются быстрее — кросс на суставы прямо в кассу."}, {"cat": "female", "main": "Клиент заказал средство для женского здоровья. Упомянула:", "quote": "«Постоянно тревожусь, плохо сплю в последнее время»", "options": ["Стресс", "Иммунитет", "Похудение", "ЖКТ"], "correct": 0, "hint": "Тревога + бессонница у женщины = Стресс/гормональный фон."}, {"cat": "stress", "main": "Клиент заказал средство от стресса. Упомянул:", "quote": "«В постели стало не то, либидо упало совсем»", "options": ["Простата / Потенция", "Иммунитет", "Похудение", "ЖКТ"], "correct": 0, "hint": "Стресс часто бьёт по потенции у мужчин — связка естественная."}];
+const EXPLAIN_QUESTIONS = [{"cat": "general", "objection": "Я не могу позволить себе такую сумму, у меня небольшая пенсия", "options": ["Давайте посчитаем: курс на 4 месяца, это около 1,5€ в день — меньше чашки кофе. И могу предложить персональный рабатт: 149€ вместо 179€, плюс подарок остаётся.", "Ну ладно, тогда возьмите 1 пакет за 39€ для начала.", "Здоровье дороже денег, уж как-то найдите средства."], "correct": 0, "feedbacks": ["✓ Идеально: разложил сумму на день, кофе-аналогия делает её осязаемой, скидка как джокер. Целевой 179€ сохранён через персональное предложение.", "✗ Сдался слишком быстро. Один пакет = деньги впустую (эффекта не хватит), плюс ты потерял целевую продажу. Сначала отрабатывай цену.", "✗ Нравоучение и давление. Клиент защитится и положит трубку. Никогда не учи клиента жизни."]}, {"cat": "general", "objection": "Дорого. У соседа в аптеке такое же стоит в 3 раза дешевле.", "options": ["Аптечные аналоги действительно дешевле, но в них концентрация в разы ниже и состав разбавлен. У нас полная дозировка и натуральный состав без побочек — именно поэтому курс работает.", "Так и идите в аптеку, что вы тогда тут со мной разговариваете.", "Это совсем другое, у нас уникальное средство, такого нигде нет."], "correct": 0, "feedbacks": ["✓ Сравнил по существу — концентрация и состав. Не обесценил аптеку, но показал разницу. Объяснил почему именно эта цена.", "✗ Грубо. Клиент сравнил цены — это нормально, ему нужен ответ, а не сарказм.", "✗ «Уникальное» без объяснений звучит как маркетинг-пустота. Клиент не верит. Нужны конкретные отличия."]}, {"cat": "general", "objection": "Мне надо подумать, перезвоните на следующей неделе.", "options": ["Конечно, понимаю — решение важное. Скажите, что именно вызывает сомнения? Может, я смогу прояснить прямо сейчас, чтобы вы потом не возвращались к этим вопросам.", "Хорошо, я перезвоню в понедельник в 10:00.", "Что тут думать? Давайте оформляйте сейчас, потом будет занято."], "correct": 0, "feedbacks": ["✓ Уважаешь решение клиента, но вытаскиваешь конкретное возражение. «Я подумаю» = есть скрытое возражение — твоя задача его раскрыть.", "✗ Согласие на «подумаю» = потерянная сделка в 90% случаев. Клиент остынет, забудет, перестанет отвечать.", "✗ Давление и грубость. «Что тут думать» — обесценивание решения клиента. Ответный отказ."]}, {"cat": "general", "objection": "Я обсужу с женой и потом перезвоню.", "options": ["Понимаю, это правильно. А что именно вы будете с ней обсуждать — цену или сам подход к лечению? Может, я могу помочь сразу аргументы подобрать.", "Ну ладно, ждите тогда, перезвоню через неделю.", "А зачем спрашивать жену? Это ваше здоровье, решайте сами."], "correct": 0, "feedbacks": ["✓ Поддержал решение, но сузил «обсуждение» до конкретного вопроса. Часто клиент сам понимает, что советоваться особо не о чем.", "✗ Сделка остывает. Через неделю клиент чаще всего недоступен или передумал. Нельзя оставлять без зацепки.", "✗ Подрыв семейных отношений + давление. Клиент защитит жену и закроется."]}, {"cat": "general", "objection": "Я уже пробовал что-то похожее, не помогло.", "options": ["Часто причина в коротком курсе. Восстановление идёт медленно, нужно минимум 3-4 месяца, чтобы увидеть стабильный эффект. У вас, скорее всего, был курс короче.", "Видимо вам подделку продали, наше точно поможет.", "Может вы просто не верите в эффект? Тогда никакое средство не поможет."], "correct": 0, "feedbacks": ["✓ Не споришь с опытом клиента, но даёшь рациональное объяснение неудачи. Клиент сам понимает, что попробовать стоит.", "✗ Обвинение конкурента + неподтверждённое обещание. Клиент не дурак — он понимает что это маркетинг.", "✗ Атака на клиента, обвинение в неверии. Клиент защитится и закроется."]}, {"cat": "general", "objection": "Зачем сразу 4 пакета? Я хочу один попробовать.", "options": ["Понимаю желание попробовать. Но один пакет — это 3-4 недели, а реальный эффект начинается на 2-м месяце. Один пакет = вы потратите деньги и не увидите результата, разочаруетесь. Полный курс — это и есть нормальный объём для решения проблемы.", "Ну ладно, давайте 1 пакет, потом ещё закажете.", "У нас правила — продаём только курсами от 4-х. Берёте или нет?"], "correct": 0, "feedbacks": ["✓ Объяснил логику без давления. Клиент сам видит, что один пакет — это лишние траты, а не экономия.", "✗ Сдача позиции. После одного пакета клиент чаще всего не возвращается — либо забывает, либо «не помогло» (и это будет правда).", "✗ Жёсткое правило + ультиматум. Клиент почувствует давление и закроется."]}, {"cat": "general", "objection": "А не побочки будут? Я и так на куче лекарств.", "options": ["Это пищевая добавка с растительным составом, не лекарство. Серьёзных побочек практически не бывает — только индивидуальная непереносимость отдельных компонентов, и это редкость. Но я всегда советую: проконсультируйтесь с вашим врачом, особенно если принимаете много препаратов.", "Никаких побочек, абсолютно безопасно, гарантия 100%.", "Это лекарство, как и любое — может что-то быть, на свой страх и риск."], "correct": 0, "feedbacks": ["✓ Честно про возможную непереносимость, но без паники. Совет посоветоваться с врачом = доверие. И ты не лезешь на территорию врача.", "✗ «100% гарантия» — нельзя обещать. Юридически опасно для компании, плюс клиент не верит таким обещаниям.", "✗ Сам себе противоречишь и пугаешь клиента. И это не лекарство, это БАД."]}, {"cat": "general", "objection": "У меня уже есть лекарство от врача, зачем мне ваше?", "options": ["Отлично что у вас есть назначение — наша добавка с большинством препаратов сочетается, она их не заменяет, а поддерживает организм. Это не «вместо», это «вместе» — для усиления эффекта и снижения нагрузки.", "А что вам выписали? Скорее всего бесполезное, у нас лучше работает.", "Тогда зачем вы заявку оставили, если у вас уже всё есть?"], "correct": 0, "feedbacks": ["✓ Уважаешь врача и текущее лечение, позиционируешь продукт как поддержку, а не замену. «Не вместо, а вместе» — золотая фраза.", "✗ Атака на врача = клиент защитит врача и закроется. Никогда не критикуй чужого врача.", "✗ Обвинение клиента + обесценивание его шага оставить заявку. Клиент почувствует себя глупо и отстранится."]}, {"cat": "general", "objection": "Я уже пожилой, может это не для меня?", "options": ["Наоборот — после 60 это самая нужная поддержка. У нас множество клиентов 70+, которые после курса возвращаются к активной жизни. Возраст — это аргумент за, а не против.", "Ну в вашем возрасте действительно сложно, но попробуйте.", "Главное чтобы деньги были, а возраст уже не важен."], "correct": 0, "feedbacks": ["✓ Перевернул возраст из минуса в плюс, дал социальное доказательство (другие 70+ покупают). Финал «аргумент за» — мощный.", "✗ Согласился что в его возрасте сложно — это убивает мотивацию. Клиент почувствует, что зря тратит деньги.", "✗ Грубо и цинично. Клиент почувствует что ты только за его деньгами, а не за результатом."]}, {"cat": "general", "objection": "Я в интернете читал, ваша компания — мошенники. Где гарантии?", "options": ["Я понимаю осторожность — в интернете много чего пишут. Мы работаем по официальной немецкой регистрации, у нас есть сертификаты на каждый продукт. Гарантия в том, что все наши клиенты — реальные люди, и многие заказывают по 3-4 раза. Готов прислать вам ссылки, если хотите.", "Мошенники? Да вы что, мы крупная компания, миллионы клиентов!", "Если не доверяете — зачем тогда заявку оставили? Не покупайте."], "correct": 0, "feedbacks": ["✓ Не оправдываешься, не давишь — спокойно даёшь факты: регистрация, сертификаты, повторные заказы. Готовность прислать ссылки = прозрачность.", "✗ Эмоциональная защита без аргументов. Клиент только укрепится в подозрениях.", "✗ Конфронтация. Клиент развернётся и не купит, плюс может пожаловаться."]}, {"cat": "general", "objection": "Я не доверяю никому в интернете, не люблю давать данные карты.", "options": ["Это абсолютно нормально и я вас понимаю. У нас есть оплата при получении — курьер привезёт посылку, вы её осмотрите, и только после этого платите наличными или картой курьеру. Никаких данных вперёд.", "Так в чём проблема? Все так оплачивают, все нормально.", "Ну тогда не покупайте, я не могу вас уговаривать."], "correct": 0, "feedbacks": ["✓ Подтвердил опасения как правильные, предложил решение — оплата по факту получения. Это снимает 90% таких возражений.", "✗ Обесценивание страха клиента. «Все так делают» = «ты странный что боишься». Клиент закроется.", "✗ Пассивно-агрессивно. Клиент имеет право на сомнения, твоя задача — снять их, а не отступать."]}, {"cat": "general", "objection": "У меня нет времени сейчас, я занят на работе.", "options": ["Понимаю. Тогда буквально две минуты — я расскажу самое главное, и если интересно, договоримся о деталях позже. Если не интересно, я больше не побеспокою. Хорошо?", "Ну ладно, перезвоните когда будете свободны.", "А когда же удобно? Здоровье ждать не будет."], "correct": 0, "feedbacks": ["✓ Уважаешь время клиента, ограничиваешь себя двумя минутами, оставляешь дверь открытой. «Если не интересно — больше не побеспокою» снимает страх давления.", "✗ Сделка остывает. Клиент чаще всего не перезвонит сам, и в следующий раз будет так же занят.", "✗ Манипулятивная страшилка про здоровье. Клиент почувствует давление и закроется."]}, {"cat": "general", "objection": "Натуральное — это всё травки, никакого толку. Только аптечная химия реально работает.", "options": ["Понимаю позицию — многие так считают. Но именно поэтому мы делаем не «травки», а концентрированные активные экстракты. Аптечная химия даёт быстрый эффект, потому что глушит симптом — но при этом разрушает желудок и не лечит причину. Наш подход — медленнее, но восстанавливает функцию. Это разные стратегии.", "Просто попробуйте, и сами всё поймёте.", "Ну если вы химию любите, тогда давайте, разрушайте свой желудок, не моя проблема."], "correct": 0, "feedbacks": ["✓ Не споришь с убеждением, переводишь разговор в плоскость стратегий: глушить vs восстанавливать. Клиент видит логику, а не маркетинг.", "✗ «Просто попробуйте» = слабый аргумент. Клиент именно потому и не пробует, что не верит. Нужна логика.", "✗ Грубо и непрофессионально. Клиент закроется немедленно и пожалуется."]}, {"cat": "general", "objection": "У меня сейчас денег нет, через месяц закажу.", "options": ["Понимаю. Скажу честно — у нас периодически бывают акции, и сегодня как раз действует персональная скидка. Если откладываете на месяц, цена будет другая. Могу зафиксировать сегодняшнюю — вы получите курс по сегодняшней цене, а оплатите когда удобно: курьеру при получении.", "Хорошо, тогда ждите, перезвоню через месяц.", "А что вы тогда заявку оставляли, если денег нет?"], "correct": 0, "feedbacks": ["✓ Дал «дефицит времени» (акция уйдёт) + решение (оплата при получении). Не выглядит давлением, потому что снимает реальные опасения.", "✗ Через месяц клиент чаще всего недоступен или передумал. Сделка проиграна.", "✗ Обвиняешь клиента — он закроется, и заявку зря оставлять не будет ни здесь, ни в другой компании."]}, {"cat": "general", "objection": "Хватит мне втюхивать ваши таблетки! Я и без вас разберусь!", "options": ["Извините если я слишком напористо звучу — это не моя цель. Я просто специалист, и моя задача — рассказать. Решение всегда за вами. Если сейчас не интересно — без проблем, я не буду давить. Хорошего дня!", "Ну сами тогда разбирайтесь, посмотрим как у вас получится.", "А что вы кричите? Я ничего вам не втюхиваю, послушайте сначала."], "correct": 0, "feedbacks": ["✓ Признал претензию, снизил температуру, оставил клиента с правом отказа. Это часто приводит к тому, что клиент сам перезванивает позже — потому что ты повёл себя достойно.", "✗ Пассивно-агрессивная угроза. Клиент пожалуется, плюс заработаешь негативный отзыв.", "✗ Препирательство. Клиент уже взвинчен, любое возражение усилит конфликт."]}, {"cat": "general", "objection": "Просто скажите цену, без всех этих ваших подходов и историй.", "options": ["Понял. Полный курс — 179€ за 4 упаковки плюс 3 в подарок. Если интересно — оформляем сейчас и через 2 дня посылка у вас. Берёте?", "Ну видите ли, у нас разные пакеты, один стоит 39€, второй 89€, третий 149€...", "Цена зависит от многих факторов, я сначала должен понять вашу ситуацию."], "correct": 0, "feedbacks": ["✓ Услышал клиента и подстроился — конкретная цена, конкретное предложение, призыв к действию. Прямые клиенты часто становятся самыми лояльными.", "✗ Игнорирование запроса. Клиент попросил цену — ты грузишь его пакетами. Раздражение и потеря.", "✗ Уклонение от прямого вопроса. Клиент почувствует, что ты что-то скрываешь, и закроется."]}];
+const SIM_DIALOG = {"scenarios": [{"id": "prostate_male_62", "intro": "Ты звонишь клиенту по заявке на средство от простатита. Клиент 62 года, мужчина.", "steps": [{"client": "Алло. Ну, я слушаю.", "options": [{"text": "Hallo, ich bin Spezialist von Naturonica. Sie haben sich für unser Produkt für die Prostata interessiert — wie geht es Ihnen damit?", "correct": true, "fb": "Отлично! Тёплое начало, упомянул компанию и продукт, открытый вопрос."}, {"text": "Здравствуйте, я хочу вам продать одно отличное средство, не вешайте трубку.", "correct": false, "fb": "Слишком в лоб. Клиент сразу включает защиту. Никогда не говори «продать»."}, {"text": "Так. Простатит у вас? Давно?", "correct": false, "fb": "Слишком прямо и грубо для интимной темы. Сначала представься и установи доверие."}]}, {"client": "Ну, я в интернете заявку оставил. Меня действительно мучают походы в туалет ночью, по 3-4 раза встаю.", "options": [{"text": "Понимаю, типичная картина при увеличенной простате. Скажите, как давно это у вас и беспокоит ли что-то ещё в этой связи?", "correct": true, "fb": "✓ Подтверждение экспертом + углубление. Открыл вопрос для триггеров."}, {"text": "Ну значит вам наш продукт точно подойдёт, давайте оформим 4 пачки.", "correct": false, "fb": "Слишком быстро в продажу. Клиент только начал говорить, не используй триггеры — продажа провалится."}, {"text": "Это плохо. Если не лечить, может быть рак. Берите курс на 6 месяцев.", "correct": false, "fb": "Запугивание + давление. Клиент откажется. Никогда не диагностируй и не давай страшилок."}]}, {"client": "Так-то 5 лет уже это всё. И ещё, знаете, с женой как-то не очень в последнее время. Стесняюсь говорить, но...", "options": [{"text": "Это нормально, и это тоже связано с простатой — кровообращение в малом тазу нарушается, и потенция страдает. Хорошо что сказали — это поможет подобрать правильный курс.", "correct": true, "fb": "⭐ Идеально. Снял стыд, объяснил связь, поймал триггер для кросса."}, {"text": "Ну, в вашем возрасте это естественно, что поделать.", "correct": false, "fb": "Списываешь на возраст — это убивает мотивацию и продажу. И это неправда — функцию можно восстановить."}, {"text": "Ладно, давайте к делу — берёте 4 пакета или 3?", "correct": false, "fb": "Игнорируешь интимную проблему, которую клиент с трудом озвучил. Потеря доверия и кросса."}]}, {"client": "Хорошо, мне это интересно. Сколько это стоит?", "options": [{"text": "У меня есть для вас полный курс — 4 упаковки + 3 упаковки в подарок, всё за 179€. Это весь курс на 4 месяца, который реально решает проблему.", "correct": true, "fb": "✓ Top-Down: начал с большого пакета. Подарок назвал, цену сказал уверенно."}, {"text": "Одна упаковка стоит 39€. Сколько вам взять?", "correct": false, "fb": "Сразу пошёл в маленький пакет. Это потерянная продажа — целевой 179€."}, {"text": "Там разные цены, зависит от количества. От 50 до 300 евро примерно.", "correct": false, "fb": "Размытый ответ. Клиент должен услышать конкретное предложение и цену."}]}, {"client": "Ого, 179 — это многовато. Я пенсию получаю, не могу столько за раз.", "options": [{"text": "Я понимаю. Давайте посчитаем: курс на 4 месяца, это около 1,5€ в день — меньше чашки кофе, но для здоровья. И могу предложить персональный рабатт — 149€ вместо 179€, плюс подарок остаётся.", "correct": true, "fb": "⭐ Идеальный ответ: разложил на день, использовал кофе-аналогию, дал скидку как джокер."}, {"text": "Ну ок, тогда возьмите 1 пакет за 39€.", "correct": false, "fb": "Сдался слишком быстро. Целевой 179€ был достижим со скидкой."}, {"text": "А вы посмотрите, сколько вы тратите на лекарства от простаты сейчас? Это всё бесполезно.", "correct": false, "fb": "Атака на текущее лечение клиента — он защитится. Не работай через критику его выбора."}]}]}, {"id": "joints_female_64", "intro": "Ты звонишь клиентке по заявке на средство для суставов. Клиентке 64 года, женщина, жалобы на колени.", "steps": [{"client": "Здравствуйте, кто это?", "options": [{"text": "Здравствуйте! Я специалист от Naturonica. Вы оставляли заявку на наш натуральный комплекс для суставов — у вас есть пара минут, чтобы поговорить?", "correct": true, "fb": "✓ Тёплое начало, представилась, спросила удобство. Клиентка не чувствует давления."}, {"text": "Алло, это вы оставляли заявку? Готовы оформлять заказ?", "correct": false, "fb": "Слишком в лоб про заказ. Клиентка ещё не помнит, какую заявку и куда оставляла. Сначала контекст."}, {"text": "Здравствуйте, тут у вас на сайте было что-то про суставы написано, перезваниваю.", "correct": false, "fb": "Размыто и непрофессионально. Клиентка не понимает, кто звонит и зачем."}]}, {"client": "А, да-да, припоминаю. Колени у меня просто замучили, особенно по утрам не разогнусь, и на лестнице кошмар.", "options": [{"text": "Понимаю вас. То что вы описываете — типичная картина при артрозе коленей: утренняя скованность плюс боль при нагрузке. А давно это началось, и пробовали ли что-то уже?", "correct": true, "fb": "⭐ Прозвучала экспертно — назвала диагноз-предположение и симптомы по-научному. Углубила вопросом."}, {"text": "Так у вас артроз? У нас как раз есть супер-средство, давайте оформлять полный курс.", "correct": false, "fb": "Поставила диагноз сама + сразу в продажу. Клиентка не созрела, и это нарушение протокола."}, {"text": "Ну в вашем возрасте это нормально, у всех болят колени.", "correct": false, "fb": "Обесценила проблему клиентки — она именно из-за этого и не хочет мириться с возрастом."}]}, {"client": "Лет 5 уже. Врач прописывал Diclofenac, я пила, но желудок начал болеть, теперь боюсь. И ещё вес у меня лишний — врач говорит, из-за этого тоже.", "options": [{"text": "Очень верно про вес — каждый лишний килограмм даёт колоссальную нагрузку на колени. И с Diclofenac тоже понятно, у многих от него страдает желудок. Поэтому наш подход другой — мы не глушим боль таблетками, а восстанавливаем сам хрящ. Параллельно подскажу, есть отличная связка с поддержкой обмена веществ.", "correct": true, "fb": "⭐ Идеально: подтвердила экспертно, объяснила механизм, и сразу заложила фундамент кросса на похудение."}, {"text": "Ну тогда вам всё совсем плохо, надо срочно курс брать на год.", "correct": false, "fb": "Запугивание + сразу длинный курс без объяснений = клиентка испугается и положит трубку."}, {"text": "От лишнего веса наша таблетка не поможет, это вам нужно похудеть самой.", "correct": false, "fb": "Сухо и некорректно — ты можешь предложить кросс, но не должна перекладывать ответственность на клиентку."}]}, {"client": "А сколько по цене? У меня пенсия небольшая.", "options": [{"text": "Я предлагаю полный курс на 4 месяца — это 4 упаковки плюс 3 в подарок. Всё за 179€. Это полноценный курс, который реально восстанавливает хрящ — на короткий курс просто нет смысла тратиться.", "correct": true, "fb": "✓ Top-Down: озвучила полный пакет с подарками. Цену сказала уверенно. Объяснила почему именно столько."}, {"text": "Одна упаковка 39 евро, можете для начала одну взять.", "correct": false, "fb": "Сдалась до начала возражений. Целевой 179€ был достижим. Одна пачка не даст эффекта — клиентка разочаруется и не вернётся."}, {"text": "У нас разные цены, зависит сколько вы хотите взять.", "correct": false, "fb": "Размыто. Клиентка должна услышать конкретное число и оффер."}]}, {"client": "179 это много, у меня правда пенсия маленькая. Может одну пачку и потом ещё посмотрим?", "options": [{"text": "Я понимаю про пенсию. Давайте посчитаем — курс на 4 месяца, выходит примерно 1,5 евро в день, меньше чашки кофе. И знаете что — могу для вас сделать персональный рабатт: 149€ вместо 179€, и подарок остаётся. Так вы получите полный курс, который реально вернёт ноги.", "correct": true, "fb": "⭐ Идеально: разложила на день, кофе-аналогия, дала скидку как джокер. Финал «вернёт ноги» — мотивирующий."}, {"text": "Хорошо, тогда давайте 1 пачку за 39€, потом перезвоните.", "correct": false, "fb": "Сдалась полностью. Одна пачка = клиентка разочаруется и больше не закажет. Потерянная сделка."}, {"text": "Ну если денег нет, то и здоровье не вернёшь, тогда уж терпите боли.", "correct": false, "fb": "Грубо и неэтично — клиентка просто положит трубку и пожалуется."}]}]}]};
+
+// ============ STATE / LEVELS / BADGES ============
+const STATE_KEY = 'schule_progress_v2';
+
+// ─── детектируем доступен ли localStorage (file:// часто блокирует) ───
+let _LS = null;
+try {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('__schule_test__', '1');
+    localStorage.removeItem('__schule_test__');
+    _LS = localStorage;
+  }
+} catch (e) {
+  console.warn('Schule: localStorage заблокирован, прогресс в памяти');
+}
+
+const initState = () => ({
+  total: 0, correct: 0, streak: 0, bestStreak: 0,
+  byCategory: {}, badges: [], explainCorrect: 0, simPerfect: false,
+});
+
+let _memState = null;
+function loadState() {
+  if (!_LS) {
+    if (!_memState) _memState = initState();
+    return _memState;
+  }
+  try {
+    const raw = _LS.getItem(STATE_KEY);
+    if (!raw) return initState();
+    const merged = Object.assign(initState(), JSON.parse(raw));
+    if (!merged.byCategory || typeof merged.byCategory !== 'object') merged.byCategory = {};
+    return merged;
+  } catch (e) {
+    return initState();
+  }
+}
+function saveState(s) {
+  if (!_LS) { _memState = s; return; }
+  try { _LS.setItem(STATE_KEY, JSON.stringify(s)); } catch (e) { _memState = s; }
+}
+let state = loadState();
+
+const LEVELS = [
+  { name: 'Новичок', min: 0, next: 30 },
+  { name: 'Продвинутый', min: 30, next: 80 },
+  { name: 'Эксперт', min: 80, next: 180 },
+  { name: 'Топ-1', min: 180, next: null },
+];
+function getLevel(correct) {
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (correct >= LEVELS[i].min) return Object.assign({}, LEVELS[i], { idx: i+1 });
+  }
+  return Object.assign({}, LEVELS[0], { idx: 1 });
+}
+
+const BADGES = [
+  { id: 'first_correct', icon: '🌱', name: 'Первый шаг', desc: 'Первый правильный ответ', check: s => s.correct >= 1 },
+  { id: 'ten_total', icon: '📚', name: 'Школьник', desc: '10 правильных', check: s => s.correct >= 10 },
+  { id: 'fifty_total', icon: '🎓', name: 'Студент', desc: '50 правильных', check: s => s.correct >= 50 },
+  { id: 'hundred', icon: '🏅', name: 'Сотня', desc: '100 правильных', check: s => s.correct >= 100 },
+  { id: 'streak_5', icon: '🔥', name: 'Разогрел', desc: '5 правильных подряд', check: s => s.bestStreak >= 5 },
+  { id: 'streak_10', icon: '⚡', name: 'В ударе', desc: '10 подряд', check: s => s.bestStreak >= 10 },
+  { id: 'streak_20', icon: '💎', name: 'Мастер', desc: '20 подряд', check: s => s.bestStreak >= 20 },
+  { id: 'cat_prostate', icon: '♂️', name: 'Знаток простаты', desc: '15 правильных по теме', check: s => (s.byCategory && s.byCategory.prostate ? s.byCategory.prostate.correct : 0) >= 15 },
+  { id: 'cat_joints', icon: '🦴', name: 'Знаток суставов', desc: '15 правильных по теме', check: s => (s.byCategory && s.byCategory.joints ? s.byCategory.joints.correct : 0) >= 15 },
+  { id: 'diplomat', icon: '🤝', name: 'Дипломат', desc: '10 правильных в Объясни клиенту', check: s => (s.explainCorrect || 0) >= 10 },
+  { id: 'sim_perfect', icon: '🎯', name: 'Без ошибок', desc: 'Симулятор без ошибок', check: s => !!s.simPerfect },
+  { id: 'level_pro', icon: '⭐', name: 'Продвинутый', desc: 'Уровень Продвинутый', check: s => s.correct >= 30 },
+  { id: 'level_expert', icon: '👑', name: 'Эксперт', desc: 'Уровень Эксперт', check: s => s.correct >= 80 },
+  { id: 'level_top', icon: '🏆', name: 'Топ-1', desc: 'Уровень Топ-1', check: s => s.correct >= 180 },
+];
+
+function renderHeader() {
+  const lvl = getLevel(state.correct);
+  document.getElementById('hdrLevel').textContent = lvl.idx;
+  document.getElementById('hdrLevelName').textContent = lvl.name;
+  document.getElementById('hdrStats').textContent = state.correct + ' правильных · стрик ' + state.streak;
+}
+
+function renderCatHub() {
+  const grid = document.getElementById('catGrid');
+  if (!grid) return;
+  if (typeof CATEGORIES === 'undefined' || !Array.isArray(CATEGORIES)) {
+    grid.innerHTML = '<div style="color:#a85050; padding:16px;">Ошибка загрузки CATEGORIES</div>';
+    return;
+  }
+  if (!state.byCategory) state.byCategory = {};
+  let out = '';
+  for (let i = 0; i < CATEGORIES.length; i++) {
+    const c = CATEGORIES[i];
+    const stats = state.byCategory[c.id] || { asked: 0, correct: 0 };
+    const pct = stats.asked > 0 ? Math.round(100 * stats.correct / stats.asked) : 0;
+    if (!c.available) {
+      out += '<div class="cat-tile locked">'
+        + '<div class="cat-name">' + c.icon + ' ' + c.name + '</div>'
+        + '<div class="cat-desc">' + c.desc + '</div>'
+        + '<div class="cat-coming">скоро</div></div>';
+    } else {
+      out += '<div class="cat-tile" onclick="openCategory(\'' + c.id + '\')">'
+        + '<div class="cat-name">' + c.icon + ' ' + c.name + '</div>'
+        + '<div class="cat-desc">' + c.desc + '</div>'
+        + '<div class="cat-progress"><div class="cat-progress-fill" style="width:' + pct + '%"></div></div>'
+        + '<div class="cat-progress-text">' + stats.correct + ' / ' + stats.asked + ' правильных · ' + pct + '%</div>'
+        + '</div>';
+    }
+  }
+  grid.innerHTML = out;
+}
+
+// ============ ОТКРЫТИЕ КАТЕГОРИИ ============
+function openCategory(id) {
+  const d = CATEGORIES_DATA[id];
+  if (!d) return;
+  const cat = CATEGORIES.find(c => c.id === id);
+  document.getElementById('learn-hub').style.display = 'none';
+  const detail = document.getElementById('learn-detail');
+  const icon = cat ? cat.icon : '';
+
+  let html = '';
+  html += '<button class="back-btn" onclick="closeCategory()">← к списку категорий</button>';
+  html += '<div class="detail-hero"><h2>' + icon + ' ' + d.name + '</h2><div class="sub">' + d.shortDesc + '</div></div>';
+  html += '<div class="card"><h3>Что это такое</h3><p>' + d.what + '</p></div>';
+
+  let causesHtml = '';
+  d.causes.forEach(c => { causesHtml += '<li>' + c + '</li>'; });
+  html += '<div class="card lavender"><h3>Почему возникает</h3><ul>' + causesHtml + '</ul></div>';
+
+  let symptomsHtml = '';
+  d.symptoms.forEach(s => { symptomsHtml += '<span class="symptom-pill">' + s + '</span>'; });
+  html += '<div class="card"><h3>Главные симптомы (что слышим от клиента)</h3><div class="symptom-list">' + symptomsHtml + '</div></div>';
+
+  html += '<div class="card taupe"><h3>Что бывает если не лечить</h3><p>' + d.consequences + '</p></div>';
+  html += '<div class="card lavender"><h3>Как работают натуральные комплексы</h3><p>' + d.howWorks + '</p></div>';
+
+  let phasesHtml = '';
+  d.phases.forEach(p => {
+    phasesHtml += '<div class="phase"><div class="phase-num">' + p.num + '</div><div class="phase-content"><h4>' + p.name + '</h4><div class="duration">' + p.dur + '</div><p>' + p.desc + '</p></div></div>';
+  });
+  html += '<div class="card"><h3>3 фазы курса</h3>' + phasesHtml + '</div>';
+
+  html += '<div class="card taupe"><h3>Чем отличается от аптечной химии</h3><p>' + d.vsChemistry + '</p></div>';
+
+  let faqHtml = '';
+  d.faq.forEach(f => {
+    faqHtml += '<div class="qa-item" onclick="this.classList.toggle(\'open\')"><div class="qa-q">' + f.q + '</div><div class="qa-a">' + f.a + '</div></div>';
+  });
+  html += '<div class="card"><h3>Сложные вопросы клиентов и ответы</h3>' + faqHtml + '</div>';
+
+  let phrasesHtml = '';
+  d.expertPhrases.forEach(p => { phrasesHtml += '<div class="expert-phrase">' + p + '</div>'; });
+  html += '<div class="card lavender"><h3>💬 Фразы-эксперта (выучи наизусть)</h3>' + phrasesHtml + '</div>';
+
+  let doNotHtml = '';
+  d.doNot.forEach(x => { doNotHtml += '<li>' + x + '</li>'; });
+  html += '<div class="red-zone"><h4>🚫 Что НЕ говорим клиенту</h4><ul>' + doNotHtml + '</ul></div>';
+
+  let linksHtml = '';
+  d.links.forEach(l => {
+    linksHtml += '<div style="margin:8px 0;"><b>' + l.name + '</b> — <span style="font-size:13px; color:var(--brown);">' + l.why + '</span></div>';
+  });
+  html += '<div class="card"><h3>🔗 Связки с другими категориями (для кросса)</h3>' + linksHtml + '</div>';
+
+  let storiesHtml = '';
+  d.stories.forEach(s => { storiesHtml += '<div class="story">' + s + '</div>'; });
+  html += '<div class="card"><h3>📖 Истории успеха</h3>' + storiesHtml + '</div>';
+
+  detail.innerHTML = html;
+  detail.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function closeCategory() {
+  document.getElementById('learn-hub').style.display = 'block';
+  document.getElementById('learn-detail').style.display = 'none';
+}
+
+// ============ ИГРЫ ============
+let gameState = null;
+
+function startGame(type) {
+  document.getElementById('train-hub').style.display = 'none';
+  document.getElementById('train-game').style.display = 'block';
+  if (type === 'quiz') startQuiz();
+  else if (type === 'cross') startCross();
+  else if (type === 'explain') startExplain();
+  else if (type === 'sim') startSim();
+}
+
+function exitGame() {
+  document.getElementById('train-hub').style.display = 'block';
+  document.getElementById('train-game').style.display = 'none';
+  gameState = null;
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+function pickN(arr, n) { return shuffle(arr).slice(0, n); }
+
+function startQuiz() {
+  gameState = { type: 'quiz', questions: pickN(QUIZ_QUESTIONS, 10), idx: 0, correctNow: 0 };
+  renderQuestion();
+}
+function startCross() {
+  gameState = { type: 'cross', questions: pickN(CROSS_QUESTIONS, 10), idx: 0, correctNow: 0 };
+  renderQuestion();
+}
+function startExplain() {
+  gameState = { type: 'explain', questions: pickN(EXPLAIN_QUESTIONS, 10), idx: 0, correctNow: 0 };
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const g = gameState;
+  const q = g.questions[g.idx];
+  const isCross = g.type === 'cross';
+  const isExplain = g.type === 'explain';
+  const total = g.questions.length;
+  const cont = document.getElementById('train-game');
+
+  let questionBlock = '';
+  let prompt = 'о какой категории идёт речь?';
+  if (isExplain) {
+    questionBlock = '<div style="font-size:13px; color:var(--muted); margin-bottom:8px; font-style:italic;">Клиент возражает:</div><div class="quote">' + q.objection + '</div>';
+    prompt = 'какой ответ ты дашь?';
+  } else if (isCross) {
+    questionBlock = '<div style="font-size:14px; color:var(--muted); margin-bottom:8px;">' + q.main + '</div><div class="quote">' + q.quote + '</div>';
+    prompt = 'какой кросс лучше предложить?';
+  } else {
+    questionBlock = '<div class="quote">' + q.q + '</div>';
+  }
+
+  const streakBadge = state.streak >= 3 ? '<span class="question-streak">🔥 стрик ' + state.streak + '</span>' : '';
+
+  let optionsHtml = '';
+  q.options.forEach((o, i) => {
+    optionsHtml += '<button class="option-btn" onclick="answerQ(' + i + ')">' + o + '</button>';
+  });
+
+  cont.innerHTML =
+    '<button class="back-btn" onclick="exitGame()">← к выбору игры</button>' +
+    '<div class="question-card">' +
+      '<div class="question-progress">Вопрос ' + (g.idx+1) + ' / ' + total + ' · правильных: ' + g.correctNow + ' ' + streakBadge + '</div>' +
+      '<div class="question-text">' +
+        questionBlock +
+        '<div style="font-size:14px; color:var(--brown); margin-top:14px; font-family: ui-sans-serif;">→ ' + prompt + '</div>' +
+      '</div>' +
+      '<div class="options" id="opts">' + optionsHtml + '</div>' +
+      '<div class="feedback" id="fb"></div>' +
+      '<button class="next-btn" id="nextBtn" disabled onclick="nextQ()">далее →</button>' +
+    '</div>';
+}
+
+function answerQ(i) {
+  const g = gameState;
+  const q = g.questions[g.idx];
+  const opts = document.querySelectorAll('#opts .option-btn');
+  opts.forEach((b, idx) => {
+    b.classList.add('disabled');
+    b.onclick = null;
+    if (idx === q.correct) b.classList.add('correct');
+    if (idx === i && i !== q.correct) b.classList.add('wrong');
+  });
+  const right = i === q.correct;
+  const fb = document.getElementById('fb');
+  fb.className = 'feedback show ' + (right ? 'right' : 'wrong');
+  const fbText = (q.feedbacks && q.feedbacks[i]) ? q.feedbacks[i] : (q.hint || '');
+  const headline = right ? '✓ Правильно!' : (g.type === 'explain' ? '✗ Не лучший выбор' : '✗ Не угадал');
+  fb.innerHTML = '<b>' + headline + '</b>' + fbText;
+  document.getElementById('nextBtn').disabled = false;
+
+  state.total++;
+  if (right) {
+    state.correct++;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    g.correctNow++;
+  } else {
+    state.streak = 0;
+  }
+  const catId = q.cat || 'misc';
+  if (!state.byCategory[catId]) state.byCategory[catId] = { asked: 0, correct: 0 };
+  state.byCategory[catId].asked++;
+  if (right) state.byCategory[catId].correct++;
+  if (g.type === 'explain' && right) {
+    state.explainCorrect = (state.explainCorrect || 0) + 1;
+  }
+  saveState(state);
+  renderHeader();
+}
+
+function nextQ() {
+  const g = gameState;
+  if (g.idx + 1 >= g.questions.length) {
+    showGameResult();
+  } else {
+    g.idx++;
+    renderQuestion();
+  }
+}
+
+function showGameResult() {
+  const g = gameState;
+  const total = g.questions.length;
+  const pct = Math.round(100 * g.correctNow / total);
+  let msg = '';
+  if (pct >= 90) msg = '🌟 Отлично! Ты эксперт.';
+  else if (pct >= 70) msg = '👍 Хорошо. Ещё чуть-чуть и будет идеально.';
+  else if (pct >= 50) msg = '🙂 Норм, но есть куда расти. Перечитай раздел «Изучить».';
+  else msg = '📚 Слабо. Пройди категорию в «Изучить» и попробуй снова.';
+
+  const emoji = pct >= 90 ? '🌟' : pct >= 70 ? '👍' : '📚';
+  document.getElementById('train-game').innerHTML =
+    '<button class="back-btn" onclick="exitGame()">← к выбору игры</button>' +
+    '<div class="question-card" style="text-align:center;">' +
+      '<div style="font-size:48px; margin-bottom:8px;">' + emoji + '</div>' +
+      '<div class="question-text" style="font-size:24px;">' + g.correctNow + ' / ' + total + ' правильных</div>' +
+      '<div style="font-size:18px; color:var(--brown); margin-bottom:16px;">точность ' + pct + '%</div>' +
+      '<div style="font-size:15px; color:var(--brown-dk);">' + msg + '</div>' +
+      '<div style="margin-top:24px; display:flex; gap:10px; justify-content:center;">' +
+        '<button class="next-btn" onclick="startGame(\'' + g.type + '\')">↺ ещё раз</button>' +
+        '<button class="next-btn" style="background:var(--lavender); color:var(--brown-dk);" onclick="exitGame()">к меню</button>' +
+      '</div>' +
+    '</div>';
+}
+
+// ============ СИМУЛЯТОР ============
+function startSim() {
+  const scenarios = SIM_DIALOG.scenarios || [SIM_DIALOG];
+  const s = scenarios[Math.floor(Math.random() * scenarios.length)];
+  gameState = { type: 'sim', step: 0, dialog: [], score: 0, mistakes: 0, scenario: s, started: false };
+  renderSim();
+}
+
+function renderSim() {
+  const g = gameState;
+  const cont = document.getElementById('train-game');
+  const scen = g.scenario;
+  if (!g.started) {
+    cont.innerHTML =
+      '<button class="back-btn" onclick="exitGame()">← к выбору игры</button>' +
+      '<div class="sim-stage">' +
+        '<div style="font-size:14px; color:var(--muted); margin-bottom:8px;">📞 СИМУЛЯТОР ЗВОНКА</div>' +
+        '<div style="font-family:Georgia,serif; font-size:20px; margin-bottom:16px;">Контекст</div>' +
+        '<p>' + scen.intro + '</p>' +
+        '<p style="font-size:13px; color:var(--brown); margin-top:12px;">Тебе будут показаны реплики клиента — выбирай свой ответ из 3 вариантов. В конце получишь оценку.</p>' +
+        '<button class="next-btn" onclick="simNext()">начать звонок →</button>' +
+      '</div>';
+    return;
+  }
+
+  if (g.step >= scen.steps.length) {
+    showSimResult();
+    return;
+  }
+
+  const step = scen.steps[g.step];
+  let dialogHtml = '';
+  g.dialog.forEach(d => { dialogHtml += '<div class="dialog-bubble ' + d.who + '">' + d.text + '</div>'; });
+
+  let optsHtml = '';
+  step.options.forEach((o, i) => {
+    optsHtml += '<button class="option-btn" onclick="simAnswer(' + i + ')">' + o.text + '</button>';
+  });
+
+  cont.innerHTML =
+    '<button class="back-btn" onclick="exitGame()">← к выбору игры</button>' +
+    '<div class="sim-stage">' +
+      '<div style="font-size:12px; color:var(--muted); margin-bottom:12px;">Шаг ' + (g.step+1) + ' / ' + scen.steps.length + ' · правильных: ' + g.score + '</div>' +
+      dialogHtml +
+      '<div class="dialog-bubble client">' + step.client + '</div>' +
+      '<div style="font-size:14px; color:var(--brown); margin:16px 0 8px; font-style:italic;">→ твой ответ:</div>' +
+      '<div class="options" id="simOpts">' + optsHtml + '</div>' +
+      '<div class="feedback" id="simFb"></div>' +
+      '<button class="next-btn" id="simNextBtn" disabled onclick="simContinue()">далее →</button>' +
+    '</div>';
+}
+
+function simAnswer(i) {
+  const g = gameState;
+  const step = g.scenario.steps[g.step];
+  const chosen = step.options[i];
+  const opts = document.querySelectorAll('#simOpts .option-btn');
+  opts.forEach((b, idx) => {
+    b.classList.add('disabled');
+    b.onclick = null;
+    if (step.options[idx].correct) b.classList.add('correct');
+    if (idx === i && !chosen.correct) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('simFb');
+  fb.className = 'feedback show ' + (chosen.correct ? 'right' : 'wrong');
+  fb.innerHTML = '<b>' + (chosen.correct ? '✓ Хорошо' : '✗ Можно лучше') + '</b>' + chosen.fb;
+  document.getElementById('simNextBtn').disabled = false;
+
+  g.dialog.push({ who: 'client', text: step.client });
+  g.dialog.push({ who: 'operator', text: chosen.text });
+  if (chosen.correct) g.score++;
+  else g.mistakes++;
+
+  state.total++;
+  if (chosen.correct) {
+    state.correct++;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+  } else {
+    state.streak = 0;
+  }
+  saveState(state);
+  renderHeader();
+}
+
+function simNext() {
+  gameState.started = true;
+  gameState.step = 0;
+  gameState.dialog = [];
+  renderSim();
+}
+function simContinue() { gameState.step++; renderSim(); }
+
+function showSimResult() {
+  const g = gameState;
+  const total = g.scenario.steps.length;
+  const pct = Math.round(100 * g.score / total);
+  let medal = '🥉', msg = '';
+  if (pct === 100) { medal = '🏆'; msg = 'Безупречно! Все ответы оптимальны.'; state.simPerfect = true; saveState(state); }
+  else if (pct >= 80) { medal = '🥇'; msg = 'Отличный звонок! Один-два ответа можно улучшить.'; }
+  else if (pct >= 60) { medal = '🥈'; msg = 'Звонок прошёл, но есть слабые моменты.'; }
+  else { medal = '🥉'; msg = 'Сделка под угрозой. Перечитай категорию и попробуй снова.'; }
+
+  document.getElementById('train-game').innerHTML =
+    '<button class="back-btn" onclick="exitGame()">← к выбору игры</button>' +
+    '<div class="question-card" style="text-align:center;">' +
+      '<div style="font-size:64px; margin-bottom:8px;">' + medal + '</div>' +
+      '<div class="question-text" style="font-size:22px;">' + g.score + ' / ' + total + ' оптимальных ответов</div>' +
+      '<div style="font-size:18px; color:var(--brown); margin-bottom:16px;">точность ' + pct + '%</div>' +
+      '<div style="font-size:15px; color:var(--brown-dk); margin-bottom:24px;">' + msg + '</div>' +
+      '<div style="display:flex; gap:10px; justify-content:center;">' +
+        '<button class="next-btn" onclick="startGame(\'sim\')">↺ ещё раз</button>' +
+        '<button class="next-btn" style="background:var(--lavender); color:var(--brown-dk);" onclick="exitGame()">к меню</button>' +
+      '</div>' +
+    '</div>';
+}
+
+// ============ ПРОГРЕСС-ЭКРАН ============
+function renderProgress() {
+  const lvl = getLevel(state.correct);
+  document.getElementById('progLevelName').textContent = lvl.name;
+  if (lvl.next) {
+    const pct = Math.min(100, 100 * (state.correct - lvl.min) / (lvl.next - lvl.min));
+    document.getElementById('progLevelFill').style.width = pct + '%';
+    document.getElementById('progNext').textContent = 'до следующего уровня: ' + (lvl.next - state.correct) + ' правильных';
+  } else {
+    document.getElementById('progLevelFill').style.width = '100%';
+    document.getElementById('progNext').textContent = 'максимальный уровень достигнут 🏆';
+  }
+
+  document.getElementById('statTotal').textContent = state.correct;
+  document.getElementById('statStreak').textContent = state.streak;
+  document.getElementById('statBest').textContent = state.bestStreak;
+  document.getElementById('statAcc').textContent = state.total > 0 ? Math.round(100 * state.correct / state.total) + '%' : '—';
+
+  let badgesHtml = '';
+  for (let i = 0; i < BADGES.length; i++) {
+    const b = BADGES[i];
+    const earned = b.check(state);
+    badgesHtml += '<div class="badge ' + (earned ? 'earned' : 'locked') + '">'
+      + '<div class="badge-icon">' + b.icon + '</div>'
+      + '<div class="badge-name">' + b.name + '</div>'
+      + '<div class="badge-desc">' + b.desc + '</div>'
+      + '</div>';
+  }
+  document.getElementById('badges').innerHTML = badgesHtml;
+}
+
+function resetProgress() {
+  if (!confirm('Сбросить весь прогресс? Это нельзя отменить.')) return;
+  state = initState();
+  saveState(state);
+  renderHeader();
+  renderProgress();
+  renderCatHub();
+  alert('Прогресс сброшен.');
+}
+
+// ============ TABS ============
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const tab = b.dataset.tab;
+    document.getElementById('screen-' + tab).classList.add('active');
+    if (tab === 'progress') renderProgress();
+    if (tab === 'learn') { closeCategory(); renderCatHub(); }
+    if (tab === 'train') exitGame();
+  });
+});
+
+// ============ INIT ============
+try {
+  renderHeader();
+  renderCatHub();
+  renderProgress();
+} catch (e) {
+  console.error('Schule INIT error:', e);
+  const grid = document.getElementById('catGrid');
+  if (grid) {
+    grid.innerHTML = '<div style="color:#a85050; background:#fbf0f0; padding:20px; border-radius:8px; border-left:4px solid #d89090;">'
+      + '<b>JS-ошибка при загрузке:</b><br>' + (e.message || e) + '<br><br>'
+      + '<small>Открой консоль (F12) и пришли скриншот.</small></div>';
+  }
+}
+
+</script>
+</body>
+</html>
